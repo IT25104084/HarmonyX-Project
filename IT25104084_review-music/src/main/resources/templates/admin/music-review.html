@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<!--
+  admin/music-review.html
+  HarmonyX – Music Review Queue
+  Utilitarian queue with artwork thumbnail, metadata, and review actions.
+  Group: 2026-Y2-S1-MLB-WEB3G1-05
+-->
+<html xmlns:th="http://www.thymeleaf.org" lang="en">
+<head th:replace="~{fragments/layout :: head('Music Review Queue')}"></head>
+<body>
+
+<nav th:replace="~{fragments/layout :: navbar}"></nav>
+<div th:replace="~{fragments/layout :: messages}"></div>
+
+<div class="container">
+    <div class="page-head">
+        <div>
+            <h1>Music Review Queue</h1>
+            <p class="page-subtitle">Inspect uploaded tracks, listen to audio previews, and approve or reject submissions.</p>
+        </div>
+    </div>
+
+    <!-- Empty state -->
+    <div th:if="${pendingSongs == null or pendingSongs.isEmpty()}" class="empty">
+        <p>No songs pending review. The queue is completely clear!</p>
+    </div>
+
+    <!-- Review Queue Table -->
+    <div th:unless="${pendingSongs == null or pendingSongs.isEmpty()}" class="table-wrap">
+        <table class="spotify-track-table">
+            <thead>
+                <tr>
+                    <th style="width: 48px;">Artwork</th>
+                    <th>Track Title</th>
+                    <th>Artist</th>
+                    <th>Genre</th>
+                    <th>Date Submitted</th>
+                    <th style="text-align: right; width: 140px;">Review Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="song : ${pendingSongs}" class="spotify-track-row">
+                    <td>
+                        <img th:if="${song.artworkUrl != null}"
+                             th:src="${song.artworkUrl}"
+                             class="track-art-thumb"
+                             alt="Art" />
+                        <div th:unless="${song.artworkUrl != null}" class="art-placeholder-sm">&#9835;</div>
+                    </td>
+
+                    <td>
+                        <strong style="color: #fff;" th:text="${song.title}">Title</strong>
+                    </td>
+
+                    <td>
+                        <span th:text="${song.artist.stageName}">Artist</span>
+                        <span th:if="${song.artist.verificationStatus?.name() == 'VERIFIED'}"
+                              class="badge VERIFIED" style="margin-left: 6px; font-size: 10px;">&#10003;</span>
+                    </td>
+
+                    <td>
+                        <span class="badge" th:text="${song.genre != null ? song.genre : '—'}">Genre</span>
+                    </td>
+
+                    <td th:text="${#temporals.format(song.createdAt, 'dd MMM yyyy, HH:mm')}">Date</td>
+
+                    <td style="text-align: right;">
+                        <a th:href="@{/admin/music/{id}(id=${song.id})}" class="btn btn-sm">Inspect &amp; Review</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+
+        <p style="margin-top: 16px; font-size: 13px; color: var(--text-secondary);">
+            <span th:text="${pendingSongs.size()} + ' song(s) awaiting review'">0 songs</span>
+        </p>
+    </div>
+</div>
+
+<div th:replace="~{fragments/layout :: footer}"></div>
+</body>
+</html>
